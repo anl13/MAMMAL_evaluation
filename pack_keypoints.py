@@ -2,6 +2,12 @@ import numpy as np
 import os 
 from utils import * 
 import pickle 
+
+'''
+DO NOT run this file!! 
+This file is used for packing original results into .pkl file. 
+'''
+
 ##
 ## Liang An 2022.07.20 
 ## To make the data more accessible, I pack raw joint data (without smoothing, used for paper evaluation figures)
@@ -30,6 +36,28 @@ def pack_to_pickle():
         with open(outfile, 'wb') as f: 
             pickle.dump(est, f)
 
+def pack_traj(config): 
+    config_MAMMAL = { 
+        "folder": "H:/results/BamaPigEval3D_main/joints_23/", 
+        "start": 0, 
+        "num" : 1750,
+        "pignames": [0,2,3,1],
+        "outputname": "MAMMAL"
+    }
+
+    config_Tri = { 
+        "folder": "D:/results/paper_teaser/0704_eval_tri/skels/", 
+        "start": 750, 
+        "num" : 1750,
+        "pignames": [0,2,1,3],
+        "outputname": "Tri"
+    }
+
+    for config in [config_MAMMAL, config_Tri]: 
+        data = load_joint23(config["folder"], config["start"],step=1,num=1750,order=config["pignames"])
+        with open("data/traj/"+config["outputname"]+".pkl", 'wb' ) as f: 
+            pickle.dump(data, f)
 
 if __name__ == "__main__": 
     pack_to_pickle() 
+    pack_traj() 

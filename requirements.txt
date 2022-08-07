@@ -3,3 +3,9 @@ seaborn
 pandas
 matplotlib 
 scipy 
+pyGLM
+PyOpenGL 
+glfw 
+freetype-py 
+opencv-python 
+ipython 
