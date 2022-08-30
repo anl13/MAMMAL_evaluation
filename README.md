@@ -1,5 +1,5 @@
 # MAMMAL Evaluation 
-This repository presents how to produce evaluation figures (Fig. 3) proposed in paper.
+This repository presents how to produce evaluation figures (Fig. 3) proposed in [MAMMAL](https://github.com/anl13/MAMMAL_core).
 
 ## How to run the codes  
 These codes are written in Python and work under both windows 10 and Ubuntu (>=16.04). 
@@ -49,7 +49,7 @@ If you use these datasets in your research, please cite the paper
 
 ```BibTex
 @article{MAMMAL, 
-    author = {},
+    author = {An, Liang and Ren, Jilong and Yu, Tao and Hai, Tang and Jia, Yichang and Liu, Yebin},
     title = {Three-dimensional surface motion capture of multiple freely moving pigs using MAMMAL},
     booktitle = {},
     month = {July},

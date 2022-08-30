@@ -93,8 +93,8 @@ def eval_compare():
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     f, ax = plt.subplots(nrows=1, ncols=1)
-    f.set_figheight(1.7)
-    f.set_figwidth(1.7)
+    f.set_figheight(1.4)
+    f.set_figwidth(1.4)
     plt.grid(linestyle="--", alpha=0.3)
     colors_warm = np.asarray([
         [227, 88, 34],
@@ -130,7 +130,7 @@ def eval_compare():
     plt.xlabel("Error Threshold (cm)", fontsize=7)
     plt.ylabel("Accuracy (%)", fontsize=7)
     plt.savefig("figs/Fig.3g.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
-    # plt.savefig("figs/Fig.3g.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3g.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
 
 if __name__ == "__main__":
     if not os.path.exists("figs"):

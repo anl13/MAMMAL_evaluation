@@ -24,7 +24,7 @@ def main_error():
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
     plt.rcParams['figure.autolayout'] = True
-    fig, (ax, ax1) = plt.subplots(1,2,figsize=(3.4,1.7)) 
+    fig, (ax, ax1) = plt.subplots(1,2,figsize=(3.0,1.4)) 
 
     colors_warm = np.asarray([
         [227, 88, 34],
@@ -93,7 +93,7 @@ def main_error():
         Patch(facecolor=colors[4], edgecolor='black',label=labels[4], linewidth=0.5), 
         Patch(facecolor=colors[5], edgecolor='black',label=labels[5], linewidth=0.5), 
     ]
-    ax.legend(handles=legend_elements, fontsize=6, frameon=False)
+    ax.legend(handles=legend_elements, fontsize=5, frameon=False)
     ax = fig.get_axes()[0]
     for line in ["bottom", "left", "right", "top"]: 
         ax.spines[line].set_linewidth(0.5)
@@ -157,7 +157,7 @@ def main_error():
     fig.add_artist(con1)
 
     plt.savefig("figs/Fig.3d.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
-    # plt.savefig("figs/Fig.3d.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3d.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
 
 if __name__ == "__main__":
     if not os.path.exists("figs"):

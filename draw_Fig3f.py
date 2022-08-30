@@ -59,7 +59,7 @@ def eval_parts_ratio():
 
 def draw_per_part_error():
     mpl.rc('font', family='Arial') 
-    fig = plt.figure(figsize=(1.7,1.7)) 
+    fig = plt.figure(figsize=(1.4,1.4)) 
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
 
@@ -116,9 +116,9 @@ def draw_per_part_error():
     plt.ylabel("Fraction of Instances (%)", fontsize=7) 
     plt.xlabel("Number of Correct Keypoints", fontsize=7)
     
-    plt.text(0.02, 0.06, "Threshold: 7 cm\n(10% body length)", fontsize=7)
+    plt.text(0.02, 0.06, "Threshold: 7 cm\n(10% body length)", fontsize=5)
     plt.savefig("figs/Fig.3f.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
-    # plt.savefig("figs/Fig.3f.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3f.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
 
 if __name__ == "__main__":
     if not os.path.exists("figs"):

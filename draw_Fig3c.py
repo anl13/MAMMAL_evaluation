@@ -72,14 +72,14 @@ def build_data_frame_chronic():
 
 def draw_sil_curve(): 
     mpl.rc('font', family='Arial') 
-    fig = plt.figure(figsize=(2.0,1.7)) 
+    fig = plt.figure(figsize=(1.6,1.4)) 
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
 
     ax = fig.add_subplot(111)
     data = build_data_frame_chronic()
     names = ["MAMMAL", "-sil"]
-    legend_names = ["with silhouette", "without silhouette"]
+    legend_names = ["MAMMAL", "MAMMAL w/o Sil"]
     data_per_frame = [] 
     sem_per_frame  = [] 
 
@@ -99,6 +99,8 @@ def draw_sil_curve():
         sem_per_frame.append(s)  
     data_per_frame = np.asarray(data_per_frame)
     sem_per_frame  = np.asarray(sem_per_frame) 
+    from IPython import embed; embed()
+    exit()
     
     colortable = np.asarray([ 
         [254, 138, 113],
@@ -122,10 +124,10 @@ def draw_sil_curve():
     ax.yaxis.set_tick_params(width=0.5)
 
     plt.xlabel("Time (s)", fontsize=7) 
-    plt.ylabel("Intersection over Union (IoU)", fontsize=7)
+    plt.ylabel("Surface Accuracy (IoU)", fontsize=7)
 
     plt.savefig("figs/Fig.3c.png", dpi=1000, pad_inches=0.01, bbox_inches='tight')
-    # plt.savefig("figs/Fig.3c.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
+    plt.savefig("figs/Fig.3c.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
 
 
 if __name__ == "__main__":
