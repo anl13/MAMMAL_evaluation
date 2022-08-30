@@ -75,8 +75,8 @@ def draw_xy_tail():
     ax.plot(1.0, -1, ">k", markersize=0.8, transform=ax.get_yaxis_transform(), clip_on=False)
     ax.plot(-0.6,1, "^k", markersize=0.8, transform=ax.get_xaxis_transform(), clip_on=False)
 
-    plt.savefig("figs/Fig.3h.xy.png", dpi=1000, pad_inches=0.01, bbox_inches='tight')
-    # plt.savefig("figs/Fig.3h.xy.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
+    plt.savefig("figs/Supp.9.b.xy.png", dpi=1000, pad_inches=0.01, bbox_inches='tight')
+    # plt.savefig("figs/Supp.9.b.xy.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
 
 def draw_z_tail():
     jointid = 18
@@ -119,8 +119,8 @@ def draw_z_tail():
     ax.xaxis.set_tick_params(width=0.5)
     ax.yaxis.set_tick_params(width=0.5)
 
-    plt.savefig("figs/Fig.3h.z.png", dpi=1000, pad_inches=0.01, bbox_inches='tight')
-    # plt.savefig("figs/Fig.3h.z.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
+    plt.savefig("figs/Supp.9.b.z.png", dpi=1000, pad_inches=0.01, bbox_inches='tight')
+    # plt.savefig("figs/Supp.9.b.z.svg", dpi=1000, pad_inches=0.01, bbox_inches='tight')
 
 
 def draw_xy_shoulder():

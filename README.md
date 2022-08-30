@@ -25,14 +25,14 @@ If `data/` folder already exists, then you can simply pass this step.
 ```
 python draw_Fig3b.py
 python draw_Fig3c.py
-python draw_Fig3d.py
+python draw_Fig3e.py
 python draw_Fig3f.py
 python draw_Fig3g.py
-python draw_Fig3hi.py
+python draw_Fig3i.py
 ```
 and you will get two output folders: (1) `data_for_fig/` saves the middle data; (2) `figs/` saves the output figures same to our paper. 
 
-If you want to run `draw_Fig3e_rawdata.py`, you need to prepare `pig_render` like 
+If you want to run `draw_Fig3h.py`, you need to prepare `pig_render` like 
 ```
 MAMMAL_evaluation/
 `-- data
@@ -43,7 +43,7 @@ MAMMAL_evaluation/
 `-- draw_Fig2b.py
 `-- ...
 ```
-
+`pig_render` can be downloaded from https://github.com/anl13/pig_renderer.
 ## Citation
 If you use these datasets in your research, please cite the paper
 

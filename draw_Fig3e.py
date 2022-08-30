@@ -156,8 +156,8 @@ def main_error():
     fig.add_artist(con)
     fig.add_artist(con1)
 
-    plt.savefig("figs/Fig.3d.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
-    plt.savefig("figs/Fig.3d.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3e.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3e.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
 
 if __name__ == "__main__":
     if not os.path.exists("figs"):
