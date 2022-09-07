@@ -99,8 +99,6 @@ def draw_sil_curve():
         sem_per_frame.append(s)  
     data_per_frame = np.asarray(data_per_frame)
     sem_per_frame  = np.asarray(sem_per_frame) 
-    from IPython import embed; embed()
-    exit()
     
     colortable = np.asarray([ 
         [254, 138, 113],

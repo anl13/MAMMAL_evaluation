@@ -75,7 +75,7 @@ def main_error():
                 boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
                 flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
                 meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
-                medianprops = {'linestyle':'--','color':'black','linewidth':0.5},
+                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
                 capprops={"linewidth":0.5},
                 whiskerprops={"linewidth":0.5},
                 labels = labels, 
@@ -124,7 +124,7 @@ def main_error():
                 boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
                 flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
                 meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
-                medianprops = {'linestyle':'--','color':'black','linewidth':0.5},
+                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
                 capprops={"linewidth":0.5},
                 whiskerprops={"linewidth":0.5},
                 labels = labels, 
