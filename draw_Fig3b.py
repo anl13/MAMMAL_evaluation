@@ -93,10 +93,10 @@ def build_dataframe():
         gn = g_groupnames[id]
         for k in range(d1.shape[0]): 
             if d1[k,i] >= 0: 
-                visible.append(0)
+                visible.append("Visible")
                 errors.append(d1[k,i])
             else: 
-                visible.append(1)
+                visible.append("Invisible")
                 errors.append(-d1[k,i]) 
             jointname.append(name)
             method.append("MAMMAL") 
@@ -117,6 +117,7 @@ def draw():
     }
 
     data = build_dataframe()
+
     useddata = data
     # ax = sns.violinplot(x="jointname", y="error", hue="visible", data=useddata, palette="Set3",
     #     split=False, inner="quartile", linewidth=1)

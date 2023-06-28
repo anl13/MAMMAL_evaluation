@@ -78,6 +78,7 @@ def draw_sil_curve():
 
     ax = fig.add_subplot(111)
     data = build_data_frame_chronic()
+
     names = ["MAMMAL", "-sil"]
     legend_names = ["MAMMAL", "MAMMAL w/o Sil"]
     data_per_frame = [] 

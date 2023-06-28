@@ -1,67 +1,30 @@
 import numpy as np 
 import matplotlib as mpl 
 import matplotlib.pyplot as plt 
+import pandas as pd 
 from matplotlib.patches import Patch 
-import pickle 
-from utils import * 
+from matplotlib.patches import ConnectionPatch
 import os 
+from draw_Fig3h import compute_loss 
+import pickle 
+from utils import g_all_parts, g_jointnames
 
-### eval correct body part ratio 
-def compute_correct_part_ratio(est, gt, N=70, name="est"):
-    part = g_all_parts
-    est_data = est[0:N, :, part,:]
-    gt_data  = gt[0:N, :, part, :]
-    PN = len(part) 
-    valid_instance = 0
-    bins = np.zeros(20) 
-    for fid in range(N):
-        for pid in g_pig_ids_for_eval:
-            correct_thresh = 0.07
-            correct_num = 0 
-            for k in range(PN):
-                if np.linalg.norm(gt_data[fid, pid, k]) == 0: 
-                    continue 
-                else:
-                    loss = np.linalg.norm(gt_data[fid, pid, k] - est_data[fid,pid,k])
-                    if loss < correct_thresh: 
-                        correct_num += 1 
-            bins[correct_num] += 1
-            valid_instance += 1
-    for k in range(1,20):
-        bins[19-k] += bins[19-k+1]
-    bins = bins / valid_instance
-
-    if not os.path.exists("data_for_fig"): 
-        os.makedirs("data_for_fig")
-    np.savetxt("data_for_fig/" + name +"_correctratio0.07.txt", bins)
-    return bins
-
-def load_and_eval_part_ratio(configname, N):
+def load_and_eval(configname, N):
     with open("data/keypoints_for_eval/label_mix.pkl", 'rb') as f: 
         gt = pickle.load(f) 
     with open("data/keypoints_for_eval/" + configname + ".pkl", 'rb') as f: 
         est = pickle.load(f) 
-    compute_correct_part_ratio(est, gt, N, name=configname)
-    return
+    compute_loss(est, gt, N=N, name=configname, part=g_all_parts, part_names="all_parts_mix") 
 
-def eval_parts_ratio():
-    config_names = [ 
-        "MAMMAL", 
-        "MAMMAL(5)",
-        "MAMMAL(3)",
-        "Tri",
-        "Tri(5)", 
-        "Tri(3)"
-    ]
-
-    for config in config_names: 
-        load_and_eval_part_ratio(config, N=70) 
-
-def draw_per_part_error():
+# last modified: 
+# 2021.10.21 by An Liang
+# draw main error figure 
+def main_error(): 
     mpl.rc('font', family='Arial') 
-    fig = plt.figure(figsize=(1.4,1.4)) 
     plt.rcParams['xtick.direction'] = 'in'
     plt.rcParams['ytick.direction'] = 'in'
+    plt.rcParams['figure.autolayout'] = True
+    fig, (ax, ax1) = plt.subplots(1,2,figsize=(3.0,1.4)) 
 
     colors_warm = np.asarray([
         [227, 88, 34],
@@ -74,13 +37,17 @@ def draw_per_part_error():
         [34, 185, 227]
     ]) / 255.0
 
+    '''
+    ATTENTION: 
+    Here relies on the data from draw_Fig2f.py
+    '''
     folder = "data_for_fig/"
-    data_MAMMAL_10 = np.loadtxt(folder + "MAMMAL_correctratio0.07.txt")
-    data_MAMMAL_5 = np.loadtxt(folder +"MAMMAL(5)_correctratio0.07.txt")
-    data_MAMMAL_3 = np.loadtxt(folder +"MAMMAL(3)_correctratio0.07.txt")
-    data_Tri_10 = np.loadtxt(folder +"Tri_correctratio0.07.txt")
-    data_Tri_5 = np.loadtxt(folder +"Tri(5)_correctratio0.07.txt")
-    data_Tri_3 = np.loadtxt(folder +"Tri(3)_correctratio0.07.txt")
+    data_MAMMAL_10 = np.loadtxt(folder + "MAMMAL_all_parts_mix.txt")
+    data_MAMMAL_5 = np.loadtxt(folder +"MAMMAL(5)_all_parts_mix.txt")
+    data_MAMMAL_3 = np.loadtxt(folder +"MAMMAL(3)_all_parts_mix.txt")
+    data_Tri_10 = np.loadtxt(folder +"Tri_all_parts_mix.txt")
+    data_Tri_5 = np.loadtxt(folder +"Tri(5)_all_parts_mix.txt")
+    data_Tri_3 = np.loadtxt(folder +"Tri(3)_all_parts_mix.txt")
 
     labels = ["MAMMAL 10views", 
         "MAMMAL 5views", 
@@ -99,29 +66,130 @@ def draw_per_part_error():
         data_Tri_10, data_Tri_5, data_Tri_3
     ]
 
-    plt.grid(linestyle="--", alpha=0.3)
-    x = np.arange(20) 
-    for i in range(6):
-        plt.plot(x, all_data[i], color=colors[i], marker='.', markersize=1, linewidth=0.5) 
+    ### --- begin redundant code piece for generating xlsx. 
+    # methods = [] 
+    # all_errors = []
+    # all_pigids = [] 
+    # all_frameids = [] 
+    # all_bodyparts = [] 
+    # for index, errors in enumerate(all_data): 
+    #     errors = errors.reshape([70, 4, 19])
+    #     for frameid in range(70): 
+    #         for pid in range(4): 
+    #             for bodypartid in range(19): 
+    #                 bodypartname = g_jointnames[g_all_parts[bodypartid]]
+    #                 all_bodyparts.append(bodypartname) 
+    #                 all_frameids.append(frameid)
+    #                 all_pigids.append(pid) 
+    #                 all_errors.append(errors[frameid, pid, bodypartid]) 
+    #                 methods.append(labels[index])
+    # data_dict = { 
+    #     "method": methods, 
+    #     "frame(s)": all_frameids, 
+    #     "pig id": all_pigids, 
+    #     "body part": all_bodyparts, 
+    #     "error(m)": all_errors
+    # }
+    # data = pd.DataFrame(data = data_dict)
+    # data.to_excel("excel/Fig3f.xlsx", sheet_name="data")
+    # from IPython import embed; embed() 
+    # exit() 
+    ### --- end redundant code 
 
-    plt.xticks([0,5,10,15,19], fontsize=7) 
-    plt.yticks([0,0.2,0.4,0.6,0.8,1.0], labels=[0,20,40,60,80,100], fontsize=7)
-
+    avg = ["3.44","4.08","5.19","14.17", "24.19", "41.81"]
+    
+    bplot = ax.boxplot(x = all_data, # 指定绘图数据
+                sym = "", 
+                patch_artist=True, # 要求用自定义颜色填充盒形图，默认白色填充
+                showmeans=True, # 以点的形式显示均值
+                boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
+                flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
+                meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
+                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
+                capprops={"linewidth":0.5},
+                whiskerprops={"linewidth":0.5},
+                labels = labels, 
+                ) # 设置中位数线的属性，线的类型和颜色
+    for patch, color in zip(bplot["boxes"], colors):
+        patch.set_facecolor(color) 
+        patch.set_linewidth(0.5)
+    ax.plot([0,7],[0.2,0.2],linewidth=0.5,linestyle='--',color='k')
+    ax.plot([7,7.5],[0.2,1.8],linewidth=0.5, linestyle='--',color='k')
+    legend_elements = [
+        Patch(facecolor=colors[0], edgecolor='black',label=labels[0], linewidth=0.5), 
+        Patch(facecolor=colors[1], edgecolor='black',label=labels[1], linewidth=0.5), 
+        Patch(facecolor=colors[2], edgecolor='black',label=labels[2], linewidth=0.5), 
+        Patch(facecolor=colors[3], edgecolor='black',label=labels[3], linewidth=0.5), 
+        Patch(facecolor=colors[4], edgecolor='black',label=labels[4], linewidth=0.5), 
+        Patch(facecolor=colors[5], edgecolor='black',label=labels[5], linewidth=0.5), 
+    ]
+    ax.legend(handles=legend_elements, fontsize=5, frameon=False)
     ax = fig.get_axes()[0]
     for line in ["bottom", "left", "right", "top"]: 
         ax.spines[line].set_linewidth(0.5)
     ax.xaxis.set_tick_params(width=0.5)
     ax.yaxis.set_tick_params(width=0.5)
 
-    plt.ylabel("Fraction of Instances (%)", fontsize=7) 
-    plt.xlabel("Number of Correct Keypoints", fontsize=7)
-    
-    plt.text(0.02, 0.06, "Threshold: 7 cm\n(10% body length)", fontsize=5)
+
+    # 设置y轴的范围
+    ax.set_ylim(0, 1.8)
+    ax.set_xlim(0.5,6.5)
+    ax.set_xticks([])
+    ax.set_yticks([0,0.4,0.8,1.2,1.6])
+    ax.set_yticklabels(labels=[0,40,80,120,160], fontsize=7, family='Arial')
+    ax.text(1-0.25,0.26,avg[0],fontsize=4)
+    ax.text(2-0.25,0.26,avg[1],fontsize=4)
+    ax.text(3-0.25,0.26,avg[2],fontsize=4)
+    ax.text(4-0.35,0.26,avg[3],fontsize=4)
+    ax.text(5-0.35,0.44,avg[4],fontsize=4)
+    ax.text(6-0.35,1.62,avg[5],fontsize=4)
+
+    ax.set_ylabel("Error (cm)", fontsize=7, family='Arial')
+
+
+    bplot = ax1.boxplot(x = all_data, # 指定绘图数据
+                sym = "", 
+                patch_artist=True, # 要求用自定义颜色填充盒形图，默认白色填充
+                showmeans=True, # 以点的形式显示均值
+                boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
+                flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
+                meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
+                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
+                capprops={"linewidth":0.5},
+                whiskerprops={"linewidth":0.5},
+                labels = labels, 
+                ) # 设置中位数线的属性，线的类型和颜色
+    for patch, color in zip(bplot["boxes"], colors):
+        patch.set_facecolor(color) 
+        patch.set_linewidth(0.5)
+    # plt.grid(linestyle="--", alpha=0.3)
+
+    # ax.spines['top'].set_visible(False)
+    # ax.spines["right"].set_visible(False)
+    for line in ["bottom", "left", "right", "top"]: 
+        ax1.spines[line].set_linewidth(0.5)
+    ax1.xaxis.set_tick_params(width=0.5)
+    ax1.yaxis.set_tick_params(width=0.5)
+    ax1.yaxis.tick_right()
+    # 设置y轴的范围
+    ax1.set_ylim(0, 0.2)
+    ax1.set_xlim(0.5,6.5)
+    # plt.xticks(fontsize=20, family='Arial')
+    ax1.set_xticks([])
+    ax1.set_yticks([0,0.1,0.2])
+    ax1.set_yticklabels(labels=[0,10,20],fontsize=7)
+
+    con = ConnectionPatch([6.5,0.2], [0.5,0.2], coordsA=ax.transData, coordsB=ax1.transData,
+            linewidth=0.5,linestyle='--')
+    con1 = ConnectionPatch([6.5,0], [0.5,0], coordsA=ax.transData, coordsB=ax1.transData,
+            linewidth=0.5,linestyle='--')
+    fig.add_artist(con)
+    fig.add_artist(con1)
+
     plt.savefig("figs/Fig.3f.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
     plt.savefig("figs/Fig.3f.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
 
 if __name__ == "__main__":
     if not os.path.exists("figs"):
         os.makedirs("figs")
-    eval_parts_ratio()
-    draw_per_part_error() 
+    main_error()

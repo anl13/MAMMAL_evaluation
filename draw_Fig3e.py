@@ -1,165 +1,288 @@
 import numpy as np 
-import matplotlib as mpl 
-import matplotlib.pyplot as plt 
+import pickle 
+import json 
+import os 
+import cv2 
+
+import seaborn as sns 
 import pandas as pd 
 from matplotlib.patches import Patch 
-from matplotlib.patches import ConnectionPatch
-import os 
-from draw_Fig3g import compute_loss 
-import pickle 
-from utils import g_all_parts 
+from matplotlib.lines import Line2D
 
-def load_and_eval(configname, N):
-    with open("data/keypoints_for_eval/label_mix.pkl", 'rb') as f: 
-        gt = pickle.load(f) 
-    with open("data/keypoints_for_eval/" + configname + ".pkl", 'rb') as f: 
-        est = pickle.load(f) 
-    compute_loss(est, gt, N=N, name=configname, part=g_all_parts, part_names="all_parts_mix") 
+import matplotlib as mpl 
+import matplotlib.pyplot as plt 
 
-# last modified: 
-# 2021.10.21 by An Liang
-# draw main error figure 
-def main_error(): 
-    mpl.rc('font', family='Arial') 
-    plt.rcParams['xtick.direction'] = 'in'
-    plt.rcParams['ytick.direction'] = 'in'
-    plt.rcParams['figure.autolayout'] = True
-    fig, (ax, ax1) = plt.subplots(1,2,figsize=(3.0,1.4)) 
+def load_gt_small(): 
+    # folder = "V:/rebuttal/pig_tail/sync_F2_batch1_test/labeled" 
+    folder = "data/size/gt_small"
+    out = [] 
+    for index in range(12): 
+        frameid = 12200 + index * 25
+        filename = "joint3d_{:06d}.pkl".format(frameid) 
+        with open(os.path.join(folder, filename), 'rb') as f: 
+            data = pickle.load(f) 
+            joints = data["joint3d"][0]
+            out.append(joints)
+    out = np.asarray(out) # 20, 2, 3, 3
+    return out 
 
-    colors_warm = np.asarray([
-        [227, 88, 34],
-        [227, 119, 34],
-        [227, 160, 34]    
-    ]) / 255.0 
-    colors_cold = np.asarray([
-        [34, 75, 227], 
-        [34, 121, 227], 
-        [34, 185, 227]
-    ]) / 255.0
+def load_gt_big(): 
+    # folder = "V:/rebuttal/pig_tail/sync20210923_afternoon/labeled" 
+    folder = "data/size/gt_big"
+    out = [] 
+    for index in range(12): 
+        frameid = 24800 + index * 25
+        filename = "joint3d_{:06d}.pkl".format(frameid) 
+        with open(os.path.join(folder, filename), 'rb') as f: 
+            data = pickle.load(f) 
+            joints = data["joint3d"][0]
+            out.append(joints)
+    out = np.asarray(out) # 20, 2, 3, 3
+    return out 
 
-    '''
-    ATTENTION: 
-    Here relies on the data from draw_Fig2f.py
-    '''
-    folder = "data_for_fig/"
-    data_MAMMAL_10 = np.loadtxt(folder + "MAMMAL_all_parts_mix.txt")
-    data_MAMMAL_5 = np.loadtxt(folder +"MAMMAL(5)_all_parts_mix.txt")
-    data_MAMMAL_3 = np.loadtxt(folder +"MAMMAL(3)_all_parts_mix.txt")
-    data_Tri_10 = np.loadtxt(folder +"Tri_all_parts_mix.txt")
-    data_Tri_5 = np.loadtxt(folder +"Tri(5)_all_parts_mix.txt")
-    data_Tri_3 = np.loadtxt(folder +"Tri(3)_all_parts_mix.txt")
+def load_gt_mid(): 
+    # folder = "V:/rebuttal/pig_tail/sync20210923_afternoon/labeled"
+    folder = "data/size/gt_mid"
+    out = [] 
+    for index in range(12): 
+        frameid = 9500 + index * 25
+        filename = "joint3d_{:06d}.pkl".format(frameid) 
+        with open(os.path.join(folder, filename), 'rb') as f: 
+            data = pickle.load(f) 
+            joints = data["joint3d"][0]
+            out.append(joints)
+    out = np.asarray(out) # 20, 2, 3, 3
+    return out 
 
-    labels = ["MAMMAL 10views", 
-        "MAMMAL 5views", 
-        "MAMMAL 3views",
-        "Tri 10views",
-        "Tri 5views", 
-        "Tri 3views"
-    ]
+def load_est_big(): 
+    # folder = "D:/results_add/socialrank_0923a_notail/joints_23/"    
+    folder = "data/size/est_big"
+    est = np.zeros([12, 23, 3])
+    for index in range(12): 
+        frameid = 24800 + index * 25 
+        joints = np.loadtxt(os.path.join(folder, "pig_{}_frame_{:06d}.txt".format(0, frameid))) 
+        est[index] = joints 
+    return est 
 
-    colors = [ 
-        colors_warm[0], colors_warm[1], colors_warm[2], 
-        colors_cold[0], colors_cold[1], colors_cold[2]
-    ]
-    all_data = [ 
-        data_MAMMAL_10, data_MAMMAL_5, data_MAMMAL_3, 
-        data_Tri_10, data_Tri_5, data_Tri_3
-    ]
+def load_est_small(): 
+    # folder = "D:/results_add/F2_batch1_notail/joints_23/"    
+    folder = "data/size/est_small"
+    est = np.zeros([12, 23, 3])
+    for index in range(12): 
+        frameid = 12200 + index * 25
+        joints = np.loadtxt(os.path.join(folder, "pig_{}_frame_{:06d}.txt".format(2, frameid))) 
+        est[index] = joints 
+    return est 
 
-    avg = ["3.44","4.08","5.19","14.17", "24.19", "41.81"]
+def load_est_mid(): 
+    # folder = "D:/results_add/socialrank_0923a_notail2/joints_23/"
+    folder = "data/size/est_mid"
+    est = np.zeros([12, 23, 3])
+    for index in range(12): 
+        frameid = 9500 + index * 25 
+        joints = np.loadtxt(os.path.join(folder, "pig_{}_frame_{:06d}.txt".format(1, frameid))) 
+        est[index] = joints 
+    return est 
+
+joint_names = [
+    "nose",
+    "eye_left",
+    "eye_right",
+    "ear_root_left",
+    "ear_root_right",
+    "shoulder_left",
+    "shoulder_right",
+    "elbow_left",
+    "elbow_right",
+    "paw_left",
+    "paw_right",
+    "hip_left",
+    "hip_right",
+    "knee_left",
+    "knee_right",
+    "foot_left",
+    "foot_right",
+    "neck",
+    "tail_root",
+    "withers",
+    "center",
+    "tail_middle",
+    "tail_end"
+]
+
+
+joint_names_body = [
+    "Head",
+    "Head",
+    "Head",
+    "Head",
+    "Head",
+    "FrontLeg",
+    "FrontLeg",
+    "FrontLeg",
+    "FrontLeg",
+    "FrontLeg",
+    "FrontLeg",
+    "HindLeg",
+    "HindLeg",
+    "HindLeg",
+    "HindLeg",
+    "HindLeg",
+    "HindLeg",
+    "Trunk",
+    "Trunk",
+    "Trunk",
+    "Trunk",
+    "Tail",
+    "Tail"
+]
+
+def get_midsize_errors(): 
+    with open("data/keypoints_for_eval/label_3d.pkl", 'rb') as f: 
+        gts = pickle.load(f) 
+        gt = gts[0:12,0,:,:]
+    with open("data/keypoints_for_eval/MAMMAL.pkl", 'rb') as f: 
+        ests = pickle.load(f) 
+        est = ests[0:12,0,:,:]
+    error = np.linalg.norm(gt - est, axis=-1) 
+    return gt, est, error 
     
-    bplot = ax.boxplot(x = all_data, # 指定绘图数据
-                sym = "", 
-                patch_artist=True, # 要求用自定义颜色填充盒形图，默认白色填充
-                showmeans=True, # 以点的形式显示均值
-                boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
-                flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
-                meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
-                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
-                capprops={"linewidth":0.5},
-                whiskerprops={"linewidth":0.5},
-                labels = labels, 
-                ) # 设置中位数线的属性，线的类型和颜色
-    for patch, color in zip(bplot["boxes"], colors):
-        patch.set_facecolor(color) 
-        patch.set_linewidth(0.5)
-    ax.plot([0,7],[0.2,0.2],linewidth=0.5,linestyle='--',color='k')
-    ax.plot([7,7.5],[0.2,1.8],linewidth=0.5, linestyle='--',color='k')
+def build_data_frame(): 
+    gt_good, est_good, error_good = get_midsize_errors() 
+
+    gt_small = load_gt_small() 
+    est_small = load_est_small() 
+    
+    gt_big = load_gt_big()
+    est_big = load_est_big() 
+
+    gt_mid = load_gt_mid() 
+    est_mid = load_est_mid() 
+
+    error_small = np.linalg.norm(gt_small - est_small, axis=-1) 
+    error_big = np.linalg.norm(gt_big - est_big, axis=-1)
+    error_mid = np.linalg.norm(gt_mid - est_mid, axis=-1) 
+
+    error_list = [] 
+    name_list  = [] 
+    sizes = []
+
+    error_good_list = [] 
+    for k in range(error_good.shape[0]): 
+        for j in range(23): 
+            if np.linalg.norm(gt_good[k,j]) == 0: 
+                continue 
+            error_list.append(error_good[k, j] * 100) # cm 
+            error_good_list.append(error_good[k,j] * 100)
+            name_list.append(joint_names_body[j])
+            sizes.append("good")
+    print("good mean :", np.mean(error_good_list)) 
+    print("good std  :", np.std(error_good_list) )
+
+
+    error_big_list = [ ]
+    for k in range(error_big.shape[0]): 
+        for j in range(23): 
+            if np.linalg.norm(gt_big[k,j]) == 0: 
+                continue 
+            error_list.append(error_big[k, j] * 100) # cm 
+            error_big_list.append(error_big[k,j] * 100)
+            name_list.append(joint_names_body[j])
+            sizes.append("big")
+    print("big  mean :", np.mean(error_big_list)) 
+    print("big  std  :", np.std(error_big_list) )
+
+    error_mid_list = []
+    for k in range(error_mid.shape[0]): 
+        for j in range(23): 
+            if np.linalg.norm(gt_mid[k,j]) == 0: 
+                continue 
+            error_list.append(error_mid[k, j] * 100) # cm 
+            error_mid_list.append(error_mid[k,j] * 100)
+            name_list.append(joint_names_body[j])
+            sizes.append("mid")
+    print("mid  mean :", np.mean(error_mid_list)) 
+    print("mid  std  :", np.std(error_mid_list) )
+
+    error_small_list = [] 
+    for k in range(error_small.shape[0]): 
+        for j in range(23): 
+            if np.linalg.norm(gt_small[k,j]) == 0: 
+                continue 
+            error_list.append(error_small[k, j] * 100) # cm 
+            error_small_list.append(error_small[k,j] * 100)
+            name_list.append(joint_names_body[j])
+            sizes.append("small")
+    print("small mean :", np.mean(error_small_list)) 
+    print("small std  :", np.std(error_small_list) )
+
+    d = { 
+        "error": error_list, 
+        "joints": name_list,
+        "size": sizes
+    }
+    return pd.DataFrame(data = d)
+
+def draw_error_figure(): 
+
+    mpl.rc('font', family='Arial') 
+    fig = plt.figure(figsize=(2.5,1.4)) 
+    plt.rcParams['xtick.direction'] = 'out'
+    plt.rcParams['ytick.direction'] = 'in'
+
+    color_maps = np.loadtxt("colormaps/anliang_paper.txt") / 255
+    data_frame = build_data_frame() 
+
+    ### generating excel 
+    # data_frame = data_frame.replace("good", "Train Data")
+    # data_frame = data_frame.replace("big", "Very Fat") 
+    # data_frame = data_frame.replace("small", "Juvenile")
+    # data_frame = data_frame.replace("mid", "Moderate")
+    # data_frame.to_excel("excel/Fig3e.xlsx", sheet_name="data")
+    # from IPython import embed; embed()
+    # exit()
+    ### end. 
+    colors = {
+        "good": np.asarray([1,1,1]),
+        "big": np.asarray([0.7, 0.7, 0.7]),
+        "mid": np.asarray([0.4, 0.4, 0.4]), 
+        "small": np.asarray([0.1,0.1,0.1])
+    }
+    # order = ["TailRoot", "TailMid", "TailTip"] 
+
+    ax = sns.boxplot(x="joints", y="error", hue = "size", data=data_frame, palette=colors,
+        linewidth=0.5, sym="", showmeans=True,
+        # order = order, 
+        meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1}, 
+        capprops={"linewidth":0.5, "color": 'k'},
+        whiskerprops={"linewidth":0.5, "color": "k"},
+        )
+    # ax.grid(axis='y',color='gray', linestyle='--', linewidth=0.2, zorder=0) 
+    
+    # plt.xticks([0,1,2], ["Tail\nRoot", "Tail\nMid", "Tail\nTip"], rotation=0, ha='center', fontsize=7)
     legend_elements = [
-        Patch(facecolor=colors[0], edgecolor='black',label=labels[0], linewidth=0.5), 
-        Patch(facecolor=colors[1], edgecolor='black',label=labels[1], linewidth=0.5), 
-        Patch(facecolor=colors[2], edgecolor='black',label=labels[2], linewidth=0.5), 
-        Patch(facecolor=colors[3], edgecolor='black',label=labels[3], linewidth=0.5), 
-        Patch(facecolor=colors[4], edgecolor='black',label=labels[4], linewidth=0.5), 
-        Patch(facecolor=colors[5], edgecolor='black',label=labels[5], linewidth=0.5), 
+        Patch(facecolor=colors["good"], edgecolor='black', label="Train Data", linewidth=0.5), 
+        Patch(facecolor=colors["big"], edgecolor='black', label="Very Fat", linewidth=0.5), 
+        Patch(facecolor=colors["mid"], edgecolor='black',label="Moderate", linewidth=0.5),
+        Patch(facecolor=colors["small"], edgecolor='black',label="Juvenile", linewidth=0.5),
     ]
-    ax.legend(handles=legend_elements, fontsize=5, frameon=False)
+    plt.legend(handles=legend_elements, fontsize=7, ncol=2, frameon=False)
+    plt.xticks(rotation=0, ha='center', fontsize=7)
     ax = fig.get_axes()[0]
     for line in ["bottom", "left", "right", "top"]: 
         ax.spines[line].set_linewidth(0.5)
     ax.xaxis.set_tick_params(width=0.5)
     ax.yaxis.set_tick_params(width=0.5)
-
-
-    # 设置y轴的范围
-    ax.set_ylim(0, 1.8)
-    ax.set_xlim(0.5,6.5)
-    ax.set_xticks([])
-    ax.set_yticks([0,0.4,0.8,1.2,1.6])
-    ax.set_yticklabels(labels=[0,40,80,120,160], fontsize=7, family='Arial')
-    ax.text(1-0.25,0.26,avg[0],fontsize=4)
-    ax.text(2-0.25,0.26,avg[1],fontsize=4)
-    ax.text(3-0.25,0.26,avg[2],fontsize=4)
-    ax.text(4-0.35,0.26,avg[3],fontsize=4)
-    ax.text(5-0.35,0.44,avg[4],fontsize=4)
-    ax.text(6-0.35,1.62,avg[5],fontsize=4)
-
-    ax.set_ylabel("Error (cm)", fontsize=7, family='Arial')
-
-
-    bplot = ax1.boxplot(x = all_data, # 指定绘图数据
-                sym = "", 
-                patch_artist=True, # 要求用自定义颜色填充盒形图，默认白色填充
-                showmeans=True, # 以点的形式显示均值
-                boxprops = {'color':'black','facecolor':'#9999ff','linewidth':0.5}, # 设置箱体属性，填充色和边框色
-                flierprops = {'marker':'o','markerfacecolor':'red','color':'black','linewidth':0.5}, # 设置异常值属性，点的形状、填充色和边框色
-                meanprops = {'marker':'s','markerfacecolor':'black','markeredgecolor':'black', 'linewidth':0, 'markersize':1.5}, # 设置均值点的属性，点的形状、填充色
-                medianprops = {'linestyle':'-','color':'black','linewidth':0.5},
-                capprops={"linewidth":0.5},
-                whiskerprops={"linewidth":0.5},
-                labels = labels, 
-                ) # 设置中位数线的属性，线的类型和颜色
-    for patch, color in zip(bplot["boxes"], colors):
-        patch.set_facecolor(color) 
-        patch.set_linewidth(0.5)
-    # plt.grid(linestyle="--", alpha=0.3)
-
-    # ax.spines['top'].set_visible(False)
-    # ax.spines["right"].set_visible(False)
-    for line in ["bottom", "left", "right", "top"]: 
-        ax1.spines[line].set_linewidth(0.5)
-    ax1.xaxis.set_tick_params(width=0.5)
-    ax1.yaxis.set_tick_params(width=0.5)
-    ax1.yaxis.tick_right()
-    # 设置y轴的范围
-    ax1.set_ylim(0, 0.2)
-    ax1.set_xlim(0.5,6.5)
-    # plt.xticks(fontsize=20, family='Arial')
-    ax1.set_xticks([])
-    ax1.set_yticks([0,0.1,0.2])
-    ax1.set_yticklabels(labels=[0,10,20],fontsize=7)
-
-    con = ConnectionPatch([6.5,0.2], [0.5,0.2], coordsA=ax.transData, coordsB=ax1.transData,
-            linewidth=0.5,linestyle='--')
-    con1 = ConnectionPatch([6.5,0], [0.5,0], coordsA=ax.transData, coordsB=ax1.transData,
-            linewidth=0.5,linestyle='--')
-    fig.add_artist(con)
-    fig.add_artist(con1)
-
+    
+    plt.xlabel("", fontsize=7)
+    plt.ylabel("Error (cm)", fontsize=7)
+    plt.ylim(0,20)
+    plt.yticks([0,5,10,15], labels=[0, 5, 10, 15], fontsize=7)
     plt.savefig("figs/Fig.3e.png", dpi=1000, bbox_inches='tight', pad_inches=0.01)
-    plt.savefig("figs/Fig.3e.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01)
+    plt.savefig("figs/Fig.3e.svg", dpi=1000, bbox_inches='tight', pad_inches=0.01) # uncomment this to write vector image.
 
-if __name__ == "__main__":
-    if not os.path.exists("figs"):
-        os.makedirs("figs")
-    main_error()
+
+if __name__ == "__main__": 
+    draw_error_figure()
+
+ 
