@@ -28,11 +28,13 @@ python draw_Fig3c.py
 python draw_Fig3e.py
 python draw_Fig3f.py
 python draw_Fig3g.py
+python draw_Fig3h.py
 python draw_Fig3i.py
+python draw_Fig3j.py
 ```
 and you will get two output folders: (1) `data_for_fig/` saves the middle data; (2) `figs/` saves the output figures same to our paper. 
 
-If you want to run `draw_Fig3h.py`, you need to prepare `pig_render` like 
+If you want to run `draw_Fig3i.py`, you need to prepare `pig_render` like 
 ```
 MAMMAL_evaluation/
 `-- data
